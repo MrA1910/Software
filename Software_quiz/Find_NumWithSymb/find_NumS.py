@@ -1,30 +1,26 @@
 import re
 
-
-def sum_and_show_numbers_around_symbols(file_path):
+def sum_numbers_in_vicinity(file_path):
     with open(file_path, 'r') as file:
-        data = [re.findall(r'\d+|[^0-9]', line.strip()) for line in file.readlines()]
+        grid = [list(line.strip()) for line in file]
 
-    symbols = ['+', '*', '/', '#', '@', '$', '%', '&', '-']
-    total = 0
-    numbers = []
+    symbols = {'+', '*', '/', '#', '@', '$', '%', '&', '-'}
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+    total_sum = 0
 
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            if data[i][j] in symbols:
-                # Check the eight directions around the symbol
-                for dx, dy in [(-1, 0), (1, 0), (-2, 0), (2, 0), (-3, 0), (3, 0), (0, -1), (0, 1), (0, -2), (0, 2),
-                               (0, -3), (0, 3), (-3, -1), (-3, 1), (3, -2), (3, 2), (3, -3), (3, 3)]:
-                    nx, ny = i + dx, j + dy
-                    # Check if the new position is inside the grid and is a digit
-                    if 0 <= nx < len(data) and 0 <= ny < len(data[nx]) and data[nx][ny].isdigit():
-                        num = int(data[nx][ny])
-                        total += num
-                        numbers.append(num)
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            if re.match(r'\d+', ''.join(grid[i][j:j+3])):
+                number_str = ''.join(grid[i][j:j+3])
+                if number_str.isdigit():
+                    number = int(number_str)
+                    for dx, dy in directions:
+                        nx, ny = i + dx, j + dy
+                        if 0 <= nx < len(grid) and 0 <= ny < len(grid[i]) and grid[nx][ny] in symbols:
+                            print(f"Number {number} at position ({i}, {j}) has a symbol in its vicinity.")
+                            total_sum += number
+                            break
 
-    return total, numbers
+    return total_sum
 
-
-total, numbers = sum_and_show_numbers_around_symbols('input.txt')
-print(f"The total sum of the numbers is: {total}")
-print(f"The numbers are: {numbers}")
+print(sum_numbers_in_vicinity('input.txt'))
